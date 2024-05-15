@@ -2,6 +2,9 @@ describe('Basic user flow for note taking app', () => {
     // First, visit the app
     beforeAll(async () => {
         await page.goto('http://127.0.0.1:5500/index.html');
+        page.on('dialog', async dialog => {
+            await dialog.accept();
+        });
     });
 
     it('Button should change to a plus when hovering over it', async () => {
@@ -133,23 +136,19 @@ describe('Basic user flow for note taking app', () => {
         expect(prevNotes).not.toBeNull;
         expect(prevNoteCount).toBe(3);      
 
-        page.on('dialog', async dialog => {
-            await page.keyboard.down('Control')
-            await page.keyboard.down('Shift');
-            await page.keyboard.press('KeyD');
-            await page.keyboard.up('Control');
-            await page.keyboard.up('Shift');
-            await dialog.accept();
-        });
+        await page.keyboard.down('Control')
+        await page.keyboard.down('Shift');
+        await page.keyboard.press('KeyD');
+        await page.keyboard.up('Control');
+        await page.keyboard.up('Shift');
 
         const newNotes = await page.evaluate(() => {
             return localStorage.getItem("stickynotes-notes");
         });
-        await page.reload();
         const newNoteCount = await page.$$eval('#notes-app .note', notes => notes.length);
 
         expect(newNotes).toBeNull;
-       // expect(newNoteCount).toBe(0);  
+       expect(newNoteCount).toBe(0);
     });
 });
   
